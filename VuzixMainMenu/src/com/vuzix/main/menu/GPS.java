@@ -63,6 +63,7 @@ public class GPS extends BaseActivity implements LocationListener{
 		    	}
 				intent = new Intent(GPS.this, Boussole.class);
 				startActivity(intent);
+				finish();
 				return true;
 			case KeyEvent.KEYCODE_VOLUME_DOWN:
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_VOLUME_DOWN");};
@@ -71,9 +72,9 @@ public class GPS extends BaseActivity implements LocationListener{
 		    		camera.release();
 		    		camera = null;
 		    	}
-				intent = new Intent(GPS.this, LaunchAppli.class);
+				intent = new Intent(GPS.this, ConnexionBluetooth.class);
 				startActivity(intent);
-				
+				finish();
 				return true;
 			case KeyEvent.KEYCODE_BACK:
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_BACK");};
@@ -83,6 +84,7 @@ public class GPS extends BaseActivity implements LocationListener{
 		    	}
 				intent = new Intent(GPS.this, Boussole.class);
 				startActivity(intent);
+				finish();
 				return true;
 		}     
 		return false;

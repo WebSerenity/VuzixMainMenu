@@ -53,6 +53,7 @@ public class Home extends BaseActivity {
 				timer.cancel();
 				intent = new Intent(Home.this, Gesture.class);
 				startActivity(intent);
+				finish();
 				return true;
 			case KeyEvent.KEYCODE_VOLUME_DOWN:
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_VOLUME_DOWN");};
@@ -64,11 +65,18 @@ public class Home extends BaseActivity {
 				timer.cancel();
 				intent = new Intent(Home.this, Boussole.class);
 				startActivity(intent);
+				finish();
 				return true;
 			case KeyEvent.KEYCODE_BACK:
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_BACK");};
-				//dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-				
+				if (camera != null){
+		    		camera.release();
+		    		camera = null;
+		    	}
+				timer.cancel();
+				intent = new Intent(Home.this, ConnexionBluetooth.class);
+				startActivity(intent);
+				finish();
 				return true;
 		}     
 		return false;

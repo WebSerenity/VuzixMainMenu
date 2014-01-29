@@ -14,10 +14,14 @@ public interface Params {
 	public static int BOUSSOLE_VIEW = 20;
 	public static int BOUSSOLE_STEP = 20;
 	
+	//LaucnhAppli
 	public static String[] APP_EXCEPTION = {"com.facebook.katana",
 											"com.svox.pico",
 											"com.tinno.lcd",
 											"com.tinno.turntomute",
 											"com.tinnomobile.tp",
 											"fishnoodle.koipond"};
+	
+	//Bluetooth
+	public static final String BT_REF = "M100";
 }

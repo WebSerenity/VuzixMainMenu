@@ -102,6 +102,7 @@ public class Gesture extends BaseActivity implements SensorEventListener{
 		    	}
 				intent = new Intent(Gesture.this, LaunchAppli.class);
 				startActivity(intent);
+				finish();
 				return true;
 			case KeyEvent.KEYCODE_VOLUME_DOWN:
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_VOLUME_DOWN");};
@@ -113,10 +114,17 @@ public class Gesture extends BaseActivity implements SensorEventListener{
 				
 				intent = new Intent(Gesture.this, Home.class);
 				startActivity(intent);
+				finish();
 				return true;
 			case KeyEvent.KEYCODE_BACK:
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_BACK");};
-				//dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+				if (camera != null){
+		    		camera.release();
+		    		camera = null;
+		    	}
+				intent = new Intent(Gesture.this, LaunchAppli.class);
+				startActivity(intent);
+				finish();
 				return true;
 		}     
 		return false;

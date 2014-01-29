@@ -93,6 +93,7 @@ public class LaunchAppli extends BaseActivity{
 			    	}
 					intent = new Intent(LaunchAppli.this, GPS.class);
 					startActivity(intent);
+					finish();
 				}else{
 					posRef--;
 					Appli appli = appliAdapter.getItem(posRef);
@@ -102,6 +103,7 @@ public class LaunchAppli extends BaseActivity{
 					
 					//lvAppli.setBackgroundColor(getResources().getColor(R.color.bleu));
 				}
+		
 				return true;
 			case KeyEvent.KEYCODE_VOLUME_DOWN:
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_VOLUME_DOWN");};
@@ -112,8 +114,9 @@ public class LaunchAppli extends BaseActivity{
 			    		camera.release();
 			    		camera = null;
 			    	}
-					intent = new Intent(LaunchAppli.this, Gesture.class);
+					intent = new Intent(LaunchAppli.this, ConnexionBluetooth.class);
 					startActivity(intent);
+					finish();
 				}
 				if (posRef <= lvAppli.getCount() - 1){
 					Appli appli = appliAdapter.getItem(posRef);
@@ -133,6 +136,7 @@ public class LaunchAppli extends BaseActivity{
 		    	}
 				intent = new Intent(LaunchAppli.this, GPS.class);
 				startActivity(intent);
+				finish();
 				return true;
 		}     
 		return false;

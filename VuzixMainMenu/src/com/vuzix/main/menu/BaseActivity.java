@@ -3,6 +3,7 @@ package com.vuzix.main.menu;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
@@ -39,6 +40,27 @@ public class BaseActivity extends Activity {
 	protected Context context;
 	
 	protected ArrayList<String> listClass = new ArrayList<String>();
+	
+	protected static BluetoothAdapter bluetoothAdapter = null;
+	protected static BluetoothChatService chatService = null;
+	
+	protected static final int DISCOVERABLE = 200;
+	//protected static final int MODE_DISCOVERY = 100;
+	
+	protected static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
+	protected static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
+	
+	protected static String EXTRA_DEVICE_ADDRESS = "device_address";
+	
+	
+	protected static final int MESSAGE_STATE_CHANGE = 1;
+	protected static final int MESSAGE_READ = 2;
+	protected static final int MESSAGE_WRITE = 3;
+	protected static final int MESSAGE_DEVICE_NAME = 4;
+	protected static final int MESSAGE_TOAST = 5;
+	
+	protected static String DEVICE_NAME = "device_name";
+	protected static String TOAST = "toast";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

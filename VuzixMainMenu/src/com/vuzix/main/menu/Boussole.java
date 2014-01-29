@@ -114,6 +114,7 @@ public class Boussole extends BaseActivity implements SensorEventListener{
 		    	}
 				intent = new Intent(Boussole.this, Home.class);
 				startActivity(intent);
+				finish();
 				return true;
 			case KeyEvent.KEYCODE_VOLUME_DOWN:
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_VOLUME_DOWN");};
@@ -123,9 +124,17 @@ public class Boussole extends BaseActivity implements SensorEventListener{
 		    	}
 				intent = new Intent(Boussole.this, GPS.class);
 				startActivity(intent);
+				finish();
 				return true;
 			case KeyEvent.KEYCODE_BACK:
-				
+				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_VOLUME_DOWN");};
+				if (camera != null){
+		    		camera.release();
+		    		camera = null;
+		    	}
+				intent = new Intent(Boussole.this, Home.class);
+				startActivity(intent);
+				finish();
 				return true;
 		}     
 		return false;

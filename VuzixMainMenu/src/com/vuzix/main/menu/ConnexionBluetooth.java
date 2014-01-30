@@ -209,7 +209,7 @@ public class ConnexionBluetooth extends BaseActivity{
                 	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "Connected");};
                 	//setStatus(context.getResources().getString(R.string.bt_connected));
                 	statut = BluetoothChatService.STATE_CONNECTED;
-                	drawViewConnexionBluetooth.setInfo("Bluetooth - Connected");
+                	drawViewConnexionBluetooth.setInfo("Bluetooth - Connected to " + connectedDeviceName);
                 	drawViewConnexionBluetooth.invalidate();
                     break;
                 case BluetoothChatService.STATE_CONNECTING:
@@ -245,6 +245,8 @@ public class ConnexionBluetooth extends BaseActivity{
                 byte[] readBuf = (byte[]) msg.obj;
                 String readMessage = new String(readBuf, 0, msg.arg1);
                 if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "MESSAGE_READ: " + readMessage);};
+                drawViewConnexionBluetooth.setMessage(readMessage);
+            	drawViewConnexionBluetooth.invalidate();
                 //messageAdapter.add(connectedDeviceName +":  " + readMessage);
                 break;
             case MESSAGE_DEVICE_NAME:
@@ -256,7 +258,7 @@ public class ConnexionBluetooth extends BaseActivity{
                 //Toast.makeText(context, context.getResources().getString(R.string.bt_connected_to) + connectedDeviceName, Toast.LENGTH_SHORT).show();
                 break;
             case MESSAGE_TOAST:
-                Toast.makeText(context, msg.getData().getString(TOAST),Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, msg.getData().getString(TOAST),Toast.LENGTH_SHORT).show();
                 break;
             }
         }

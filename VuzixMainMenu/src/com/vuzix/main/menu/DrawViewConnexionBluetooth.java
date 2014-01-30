@@ -12,7 +12,9 @@ public class DrawViewConnexionBluetooth extends SurfaceView{
 	private boolean fgDebugLocal = false;
 
     private Paint textPaint = new Paint();
-    private String strInfo;
+    private Paint textPaintMsg = new Paint();
+    private String strInfo = "";
+    private String strMsg = "";
     private int screenWidth;
     private int screenHeight;
 
@@ -31,12 +33,22 @@ public class DrawViewConnexionBluetooth extends SurfaceView{
 		this.strInfo = info;
 	}
 	
+	public void setMessage(String msg){
+		this.strMsg = msg;
+	}
+	
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		// TODO Auto-generated method stub
 		super.onDraw(canvas);
 		canvas.drawText(strInfo, 10, 25, textPaint);
+		
+		textPaintMsg.setColor(Color.RED);
+        textPaintMsg.setTextSize(25);
+        
+        canvas.drawText(strMsg, (int)(screenWidth*0.2), (int)(screenHeight*0.3), textPaintMsg);
+		
 	}
 
 }

@@ -17,10 +17,14 @@ import android.os.Message;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -38,7 +42,7 @@ public class Home extends BaseActivity {
 	private boolean fgDebugLocal = true;
 	
 	private Intent intentListBluetooth;
-	private EditText etMsg;
+	private static EditText etMsg;
 	private Button btSend;
 	private ListView lvInput;
 	private ArrayAdapter<String> messageAdapter;
@@ -103,6 +107,12 @@ public class Home extends BaseActivity {
         lvInput = (ListView) findViewById(R.id.lvInput);
         lvInput.setAdapter(messageAdapter);
         etMsg = (EditText) findViewById(R.id.etMsg);
+        
+        //connexion au service de notification
+        //final IntentFilter mIntentFilter = new IntentFilter(SendNotificationService.ACTION_CATCH_NOTIFICATION); 
+        
+        //registerReceiver(NotifReceiver, mIntentFilter);
+        
         
 	}
 	
@@ -234,10 +244,10 @@ public class Home extends BaseActivity {
     };
 	
     
-    private void sendMessage(String message) {
+    public static void sendMessage(String message) {
         // Check that we're actually connected before trying anything
         if (chatService.getState() != BluetoothChatService.STATE_CONNECTED) {
-            Toast.makeText(context, getResources().getString(R.string.bt_connected_no), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, getResources().getString(R.string.bt_connected_no), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -249,7 +259,7 @@ public class Home extends BaseActivity {
             etMsg.setText("");
         }
     }
-    
+    /*
     private void sendMessage(byte[] byteArray) {
         // Check that we're actually connected before trying anything
         if (chatService.getState() != BluetoothChatService.STATE_CONNECTED) {
@@ -268,6 +278,7 @@ public class Home extends BaseActivity {
             //etMsg.setText(strBufferOut);
         }
     }
+    */
     
     private byte[] getScreenshot(){
     	byte[] byteArray = null;
@@ -322,4 +333,42 @@ public class Home extends BaseActivity {
     };
     */
 
+    /*
+    public class IncomingSms extends BroadcastReceiver {
+    	private String TAG_LOCAL = "IncomingSms - ";
+    	private boolean fgDebugLocal = true;
+        
+       // Get the object of SmsManager
+    	final SmsManager sms = SmsManager.getDefault();
+        
+    	public void onReceive(Context context, Intent intent) {
+    		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "IncomingSms");};
+    		final Bundle bundle = intent.getExtras();
+    		try {
+    			if (bundle != null) {
+    				final Object[] pdusObj = (Object[]) bundle.get("pdus");
+                    
+    				for (int i = 0; i < pdusObj.length; i++) {
+                       SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
+                       String phoneNumber = currentMessage.getDisplayOriginatingAddress();
+                        
+                       String senderNum = phoneNumber;
+                       String message = currentMessage.getDisplayMessageBody();
+                       
+                       if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "senderNum: "+ senderNum + "; message: " + message);};
+                      
+                       //int duration = Toast.LENGTH_LONG;
+                       //Toast toast = Toast.makeText(context, "senderNum: "+ senderNum + ", message: " + message, duration);
+                       //toast.show();
+                        
+                   } // end for loop
+                 } // bundle is null
+
+           } catch (Exception e) {
+        	   if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "IncomingSms error : " + e.getMessage());};
+                
+           }
+       }    
+    }
+    */
 }

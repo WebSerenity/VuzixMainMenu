@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
 
     <application
         android:allowBackup="true"
@@ -27,6 +29,18 @@
             </intent-filter>
         </activity>
         <activity android:name="DeviceBluetoothList"></activity>
+        <activity android:name="SendSMS"></activity>
+        <receiver android:name="SmsReceiver">
+            <intent-filter>
+		        <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+		    </intent-filter>
+        </receiver>
+        <receiver android:name="NotificationReceiver"></receiver>
+        <service android:name="SendNotificationService" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+		        <action android:name="android.accessibilityservice.AccessibilityService" />
+		    </intent-filter>
+        </service>
     </application>
 
 </manifest>

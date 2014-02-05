@@ -24,6 +24,7 @@
     <string name="bt_none_paired">No devices have been paired</string>
     <string name="bt_none_found">No devices found</string>
     
-    <string name="button_send">Send</string>
+    <string name="button_send_msg">Send Msg</string>
+    <string name="button_send_data">Send Data</string>
 
 </resources>

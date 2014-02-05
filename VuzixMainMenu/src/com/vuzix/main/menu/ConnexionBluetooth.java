@@ -105,6 +105,7 @@ public class ConnexionBluetooth extends BaseActivity{
 		    		camera.release();
 		    		camera = null;
 		    	}
+				chatService.stop();
 				intent = new Intent(ConnexionBluetooth.this, GPS.class);
 				startActivity(intent);
 				finish();
@@ -116,6 +117,7 @@ public class ConnexionBluetooth extends BaseActivity{
 		    		camera.release();
 		    		camera = null;
 		    	}
+				chatService.stop();
 				intent = new Intent(ConnexionBluetooth.this, Home.class);
 				startActivity(intent);
 				finish();
@@ -126,6 +128,7 @@ public class ConnexionBluetooth extends BaseActivity{
 		    		camera.release();
 		    		camera = null;
 		    	}
+				chatService.stop();
 				intent = new Intent(ConnexionBluetooth.this, GPS.class);
 				startActivity(intent);
 				finish();
@@ -242,9 +245,28 @@ public class ConnexionBluetooth extends BaseActivity{
                 //messageAdapter.add("Me:  " + writeMessage);
                 break;
             case MESSAGE_READ:
+            	String readMessage = "";
                 byte[] readBuf = (byte[]) msg.obj;
-                String readMessage = new String(readBuf, 0, msg.arg1);
-                if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "MESSAGE_READ: " + readMessage);};
+                byte byteEntete = readBuf[0];
+                String refSend = Character.toString ((char) byteEntete);
+                if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "MESSAGE_READ - byteEntete: " + refSend);};
+                if (refSend.equalsIgnoreCase(Params.REP_DATA)){
+                	readMessage = "Data received";
+                }else{
+	                readMessage = new String(readBuf, 0, msg.arg1);
+	                if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "MESSAGE_READ: " + readMessage);};
+	                String strRep = readMessage.substring(0, 1);
+	                if (strRep.equalsIgnoreCase(Params.REP_MESSAGE)){
+	                	readMessage = "Msg:" + readMessage.substring(1);
+	                }
+	                if (strRep.equalsIgnoreCase(Params.REP_SMS)){
+	                	readMessage = "SMS:" + readMessage.substring(1);
+	                }
+	                if (strRep.equalsIgnoreCase(Params.REP_NOTIF)){
+	                	readMessage = "Notif:" + readMessage.substring(1);
+	                }
+                }
+                
                 drawViewConnexionBluetooth.setMessage(readMessage);
             	drawViewConnexionBluetooth.invalidate();
                 //messageAdapter.add(connectedDeviceName +":  " + readMessage);

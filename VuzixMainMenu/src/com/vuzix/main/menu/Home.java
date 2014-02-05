@@ -51,6 +51,7 @@ public class Home extends BaseActivity {
 		    		camera = null;
 		    	}
 				timer.cancel();
+				//intent = new Intent(Home.this, ConnexionBluetooth.class);
 				intent = new Intent(Home.this, ConnexionBluetooth.class);
 				startActivity(intent);
 				finish();

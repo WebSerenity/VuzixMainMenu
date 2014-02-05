@@ -19,6 +19,7 @@ public class SendSMS extends BaseActivity{
 		
 		intent = getIntent();
 		strSMS = intent.getStringExtra("sms");
+		strSMS = Params.REP_SMS;
 		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "strSMS = " + strSMS);};
 		Home.sendMessage(strSMS);
 		finish();

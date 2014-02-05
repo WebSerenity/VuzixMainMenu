@@ -24,13 +24,15 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int btSend=0x7f070002;
-        public static final int etMsg=0x7f070001;
-        public static final int lvInput=0x7f070000;
-        public static final int new_devices=0x7f070006;
-        public static final int paired_devices=0x7f070004;
-        public static final int title_new_devices=0x7f070005;
-        public static final int title_paired_devices=0x7f070003;
+        public static final int btSendData=0x7f070004;
+        public static final int btSendMsg=0x7f070003;
+        public static final int etMsg=0x7f070002;
+        public static final int llHome=0x7f070000;
+        public static final int lvInput=0x7f070001;
+        public static final int new_devices=0x7f070008;
+        public static final int paired_devices=0x7f070006;
+        public static final int title_new_devices=0x7f070007;
+        public static final int title_paired_devices=0x7f070005;
     }
     public static final class layout {
         public static final int activity_home=0x7f030000;
@@ -58,7 +60,8 @@ public final class R {
         public static final int bt_title_other_devices=0x7f05000f;
         public static final int bt_title_paired_devices=0x7f05000e;
         public static final int bt_unable=0x7f05000d;
-        public static final int button_send=0x7f050014;
+        public static final int button_send_data=0x7f050015;
+        public static final int button_send_msg=0x7f050014;
         public static final int hello_world=0x7f050002;
     }
     public static final class style {

@@ -16,6 +16,7 @@
 
 package com.vuzix.main.menu;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -463,7 +464,7 @@ public class BluetoothChatService {
 
         public void run() {
         	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "BEGIN mConnectedThread");};
-            byte[] buffer = new byte[1024];
+        	byte[] buffer = new byte[1024];
             int bytes;
 
             // Keep listening to the InputStream while connected
@@ -471,7 +472,15 @@ public class BluetoothChatService {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
-
+                    /*
+                    int len = 0;
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    buffer = new byte[1024];
+                    while ((len = mmInStream.read(buffer, 0, 1024)) != -1)
+                      bos.write(buffer, 0, len);
+                    buffer = bos.toByteArray();
+                    if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "bos size = " + bos.size());};
+                    */
                     // Send the obtained bytes to the UI Activity
                     handler.obtainMessage(BaseActivity.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
                 } catch (IOException e) {

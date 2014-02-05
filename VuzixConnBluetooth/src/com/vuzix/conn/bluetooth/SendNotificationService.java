@@ -41,13 +41,19 @@ public class SendNotificationService extends AccessibilityService{
             if (parcelable instanceof Notification) {
             	
                 List<CharSequence> messages = event.getText();
+                for (int Cpt = 0; Cpt < messages.size(); Cpt++){
+                	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "message Contenu :  " + messages.get(Cpt).toString());};
+                	
+                }
                 if (messages.size() > 0) {
-                    final String notificationMsg = (String) messages.get(0);   
-                    if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "Broadcasting for " + ACTION_CATCH_NOTIFICATION);};
+                    final String notificationMsg = messages.get(0).toString();   
+                    //if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "Broadcasting for " + ACTION_CATCH_NOTIFICATION);};
                     
                     try {
-                        intent = new Intent(SendNotificationService.this, NotifReceiver.class);
-                        if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "notificationMsg " + notificationMsg);};
+                        //intent = new Intent(SendNotificationService.this, NotifReceiver.class);
+                    	intent = new Intent();
+                    	intent.setAction("com.vuzix.conn.bluetooth.NotifReceiver");
+                        if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "notificationMsg = " + notificationMsg);};
                         intent.putExtra(EXTRA_PACKAGE, sourcePackageName);
                         intent.putExtra(EXTRA_MESSAGE, notificationMsg);
                         SendNotificationService.this.getApplicationContext().sendBroadcast(intent);

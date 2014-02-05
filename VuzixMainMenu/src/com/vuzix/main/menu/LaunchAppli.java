@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,6 +34,7 @@ public class LaunchAppli extends BaseActivity{
 	private AppliAdapter appliAdapter;
 	
 	private int posRef = 0;
+	private int LAUNCH_RETOUR = 1000;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,25 +47,45 @@ public class LaunchAppli extends BaseActivity{
 		//get a list of installed apps.       
 	    List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
 	    
+	    //PackageManager pm = context.getPackageManager();
+	    List<PackageInfo> list =pm.getInstalledPackages(0);
 	    listAppli.clear();
+	    
+	    
+	    
+	    
+	    
+	    
+	    
 	    //appliAdapter.clear();
 	    for(int Cpt=0; Cpt<packs.size(); Cpt++) {
 	        PackageInfo packageInfo = packs.get(Cpt);
+	        int flags = packageInfo.applicationInfo.flags;
 	        String nameAppli = packageInfo.applicationInfo.loadLabel(getPackageManager()).toString();
 	        //if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "appname = " + nameAppli);};
 	        String namePack = packageInfo.packageName;
 	        //if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "package = " + namePack);};
 	        //if (!namePack.contains("android") && !namePack.contains("mediatek") && !namePack.contains("google")){
+	        
+	        if (((flags & ApplicationInfo.FLAG_SYSTEM) != 0)){
+	        	Appli appli = new Appli(nameAppli, namePack);
+        		listAppli.add(appli);
+	        }
+	        
+	        /*
 	        if (!namePack.contains("android") && !namePack.contains("mediatek")){
 	        	//if (!appliExclue(namePack)){
 	        		//listInfo.add(nameAppli);
 	        		Appli appli = new Appli(nameAppli, namePack);
 	        		listAppli.add(appli);
+	        		
 	        		//appliAdapter.add(appli);
 	        		
 	        	//}
 	        }
+	        */
 	    }	
+	    
 	    appliAdapter = new AppliAdapter(context, R.layout.ligne_appli, listAppli);
 		
 	}
@@ -86,7 +108,7 @@ public class LaunchAppli extends BaseActivity{
 			case KeyEvent.KEYCODE_VOLUME_UP:
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_VOLUME_UP");};
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "posRef = " + posRef);};
-				if (posRef == 0){
+				if (posRef <= 0){
 					if (camera != null){
 			    		camera.release();
 			    		camera = null;
@@ -99,9 +121,6 @@ public class LaunchAppli extends BaseActivity{
 					Appli appli = appliAdapter.getItem(posRef);
 					appliAdapter.setSelectedState(posRef);
 					appliAdapter.notifyDataSetChanged();
-					
-					
-					//lvAppli.setBackgroundColor(getResources().getColor(R.color.bleu));
 				}
 		
 				return true;
@@ -109,7 +128,7 @@ public class LaunchAppli extends BaseActivity{
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "KEYCODE_VOLUME_DOWN");};
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "posRef = " + posRef);};
 				//attention l orde des if est important pour les bornes
-				if (posRef >= lvAppli.getCount()){
+				if (posRef >= lvAppli.getCount()-1){
 					if (camera != null){
 			    		camera.release();
 			    		camera = null;
@@ -117,12 +136,12 @@ public class LaunchAppli extends BaseActivity{
 					intent = new Intent(LaunchAppli.this, ConnexionBluetooth.class);
 					startActivity(intent);
 					finish();
-				}
-				if (posRef <= lvAppli.getCount() - 1){
+				}else{
+					posRef++;
 					Appli appli = appliAdapter.getItem(posRef);
 					appliAdapter.setSelectedState(posRef);
 					appliAdapter.notifyDataSetChanged();
-					posRef++;
+					
 				}
 				
 				
@@ -134,12 +153,29 @@ public class LaunchAppli extends BaseActivity{
 		    		camera.release();
 		    		camera = null;
 		    	}
-				intent = new Intent(LaunchAppli.this, GPS.class);
-				startActivity(intent);
-				finish();
+				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "appli selected = " + listAppli.get(posRef).getName());};
+					Intent intentLauch = context.getPackageManager().getLaunchIntentForPackage(listAppli.get(posRef).getPack());
+					//Intent intentLauch = context.getPackageManager().getLaunchIntentForPackage("com.examples.testhello");
+					if (intentLauch != null){
+						intentLauch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
+						//startActivityForResult(intentLauch, LAUNCH_RETOUR);
+						context.startActivity(intentLauch);
+						finish();
+					}
+				//intent = new Intent(LaunchAppli.this, GPS.class);
+				//startActivity(intent);
+				//finish();
 				return true;
 		}     
 		return false;
+	}
+	
+	 @Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "requestCode = " + requestCode);};
+		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "resultCode = " + resultCode);};
+		
 	}
 	
 	@Override

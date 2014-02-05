@@ -22,7 +22,8 @@ public class SendNotification extends BaseActivity{
 		
 		intent = getIntent();
 		strNotification = intent.getStringExtra("notification");
-		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "strSMS = " + strNotification);};
+		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "strNotification = " + strNotification);};
+		strNotification = Params.REP_NOTIF + strNotification;
 		Home.sendMessage(strNotification);
 		finish();
 	}

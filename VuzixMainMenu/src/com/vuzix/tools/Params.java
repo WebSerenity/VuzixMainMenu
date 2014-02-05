@@ -24,4 +24,13 @@ public interface Params {
 	
 	//Bluetooth
 	public static final String BT_REF = "M100";
+	public static final String REP_NOTIF = "N";
+	public static final String REP_SMS = "S";
+	public static final String REP_MESSAGE = "M";
+	public static final String REP_DATA = "D";
+	public static final int NBR_LETTRE = 25;
+	
+	
+	
+	
 }

@@ -2,10 +2,13 @@ package com.vuzix.conn.bluetooth;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UTFDataFormatException;
 import java.io.UnsupportedEncodingException;
 
 import com.vuzix.tools.Params;
@@ -23,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
@@ -33,6 +37,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +48,8 @@ public class Home extends BaseActivity {
 	
 	private Intent intentListBluetooth;
 	private static EditText etMsg;
-	private Button btSend;
+	private Button btSendMsg;
+	private Button btSendData;
 	private ListView lvInput;
 	private ArrayAdapter<String> messageAdapter;
 	
@@ -72,9 +78,13 @@ public class Home extends BaseActivity {
 		
 		etMsg = (EditText)findViewById(R.id.etMsg);
 		lvInput = (ListView)findViewById(R.id.lvInput);
-		btSend = (Button)findViewById(R.id.btSend);
-		btSend.setVisibility(View.INVISIBLE);
+		btSendMsg = (Button)findViewById(R.id.btSendMsg);
+		btSendMsg.setVisibility(View.INVISIBLE);
+		btSendData = (Button)findViewById(R.id.btSendData);
+		btSendData.setVisibility(View.INVISIBLE);
 		etMsg.setVisibility(View.INVISIBLE);
+		
+		//byte[] byteArray = readFile();
 		
         
         if (!bluetoothAdapter.isEnabled()) {
@@ -84,22 +94,44 @@ public class Home extends BaseActivity {
         
         
         if (statut != BluetoothChatService.STATE_CONNECTED){
-			Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-            startActivityForResult(discoverableIntent, DISCOVERABLE);
+			//Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            //discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+            //startActivityForResult(discoverableIntent, DISCOVERABLE);
+            
+            intentListBluetooth = new Intent(this, DeviceBluetoothList.class);
+    		setStatus("Discovery ...");
+    		startActivityForResult(intentListBluetooth, REQUEST_CONNECT_DEVICE_SECURE);
+            
+            
         }
         
-        btSend.setOnClickListener(new View.OnClickListener() {
-			
+        
+        
+        
+        btSendMsg.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+                String strMsg = etMsg.getText().toString();
+				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "strMsg = " + strMsg);};
+                if (strMsg.length() > 0){
+					strMsg = Params.REP_MESSAGE + strMsg;
+					sendMessage(strMsg);
+				}
+			}
+		});
+        
+        btSendData.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				//byte[] byteArray = getScreenshot();
-				//sendMessage(byteArray);
-				String strMsg = etMsg.getText().toString();
-				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "strMsg = " + strMsg);};
-				if (strMsg.length() > 0){
-					sendMessage(strMsg);
-				}
+				byte[] byteArray = readFile();
+				//byte byteEntete = byteArray[0];
+                String refSend = Character.toString ((char) byteArray[0]);
+                if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "refSend = " + refSend);};
+                if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "byteArray size = " + byteArray.length);};
+				sendMessage(byteArray);
+                
+                
 			}
 		});
         
@@ -108,10 +140,10 @@ public class Home extends BaseActivity {
         lvInput.setAdapter(messageAdapter);
         etMsg = (EditText) findViewById(R.id.etMsg);
         
-        //connexion au service de notification
-        //final IntentFilter mIntentFilter = new IntentFilter(SendNotificationService.ACTION_CATCH_NOTIFICATION); 
+        //byte[] byteArray = sendFile();
+		//sendMessage(byteArray);
         
-        //registerReceiver(NotifReceiver, mIntentFilter);
+        
         
         
 	}
@@ -128,14 +160,17 @@ public class Home extends BaseActivity {
             	chatService.start();
             }
         }
+		
+		
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "resultCode = " + resultCode);};
 		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "requestCode = " + requestCode);};
-		
+		/*
 		if (requestCode == DISCOVERABLE){	//retour du ACTION_REQUEST_DISCOVERABLE
+			
 			if (resultCode == 0){	//Mode Discovery refuse
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "Mode Discovery Refuse");};
 				Toast.makeText(context, context.getResources().getString(R.string.bt_discovery_no), Toast.LENGTH_LONG).show();
@@ -145,13 +180,16 @@ public class Home extends BaseActivity {
 				Toast.makeText(context, context.getResources().getString(R.string.bt_discovery_ok), Toast.LENGTH_LONG).show();
 				
 			}
-			if (!bluetoothAdapter.getName().equalsIgnoreCase(Params.BT_REF)) {
+			
+			//if (!bluetoothAdapter.getName().equalsIgnoreCase(Params.BT_REF)) {
 				intentListBluetooth = new Intent(this, DeviceBluetoothList.class);
 				setStatus("Discovery ...");
 				startActivityForResult(intentListBluetooth, REQUEST_CONNECT_DEVICE_SECURE);
-			}
+			//}
 	        return;
 		}
+		*/
+		
 		if (requestCode == REQUEST_CONNECT_DEVICE_SECURE){	//Retour du Mode Discovery SECURE 
 			if (resultCode == Activity.RESULT_OK){
 				if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "Device selection = " + intent.getStringExtra(EXTRA_DEVICE_ADDRESS));};
@@ -159,7 +197,6 @@ public class Home extends BaseActivity {
 			}else{
 				intentListBluetooth = new Intent(this, DeviceBluetoothList.class);
 	            startActivityForResult(intentListBluetooth, REQUEST_CONNECT_DEVICE_INSECURE);
-	            
 			}
 			return;
 		}
@@ -201,7 +238,8 @@ public class Home extends BaseActivity {
                 	setStatus(getResources().getString(R.string.bt_connected));
                 	statut = BluetoothChatService.STATE_CONNECTED;
                 	if (!bluetoothAdapter.getName().equalsIgnoreCase(Params.BT_REF)){
-                		btSend.setVisibility(View.VISIBLE);
+                		btSendMsg.setVisibility(View.VISIBLE);
+                		btSendData.setVisibility(View.VISIBLE);
                 		etMsg.setVisibility(View.VISIBLE);
                 	}
                     break;
@@ -212,6 +250,7 @@ public class Home extends BaseActivity {
                 case BluetoothChatService.STATE_LISTEN:
                 	setStatus(getResources().getString(R.string.bt_listenning));
                 	statut = BluetoothChatService.STATE_LISTEN;
+                	//chatService.start();
                     break;
                 case BluetoothChatService.STATE_NONE:
                 	setStatus(getResources().getString(R.string.bt_connected_no));
@@ -220,13 +259,25 @@ public class Home extends BaseActivity {
                 }
                 break;
             case MESSAGE_WRITE:
+            	String writeMessage = "";
                 byte[] writeBuf = (byte[]) msg.obj;
-                String writeMessage = new String(writeBuf);
-                if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "MESSAGE_WRITE: " + writeMessage);};
-                messageAdapter.add("Me:  " + writeMessage);
+                byte byteEntete = writeBuf[0];
+                String refSend = Character.toString ((char) byteEntete);
+                if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "MESSAGE_READ - byteEntete: " + refSend);};
+                if (refSend.equalsIgnoreCase(Params.REP_DATA)){
+                	messageAdapter.add("Me:  data send");
+                }else{
+                	writeMessage = new String(writeBuf);
+                	messageAdapter.add("Me:  " + writeMessage.substring(1));
+                }
+                
+                //if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "MESSAGE_WRITE: " + writeMessage);};
                 break;
             case MESSAGE_READ:
                 byte[] readBuf = (byte[]) msg.obj;
+                
+                
+                
                 String readMessage = new String(readBuf, 0, msg.arg1);
                 if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "MESSAGE_READ: " + readMessage);};
                 messageAdapter.add(connectedDeviceName +":  " + readMessage);
@@ -245,7 +296,6 @@ public class Home extends BaseActivity {
 	
     
     public static void sendMessage(String message) {
-        // Check that we're actually connected before trying anything
         if (chatService.getState() != BluetoothChatService.STATE_CONNECTED) {
             //Toast.makeText(context, getResources().getString(R.string.bt_connected_no), Toast.LENGTH_SHORT).show();
             return;
@@ -253,24 +303,24 @@ public class Home extends BaseActivity {
 
         // Check that there's actually something to send
         if (message.length() > 0) {
-            // Get the message bytes and tell the BluetoothChatService to write
             byte[] send = message.getBytes();
             chatService.write(send);
             etMsg.setText("");
         }
     }
-    /*
+    
     private void sendMessage(byte[] byteArray) {
-        // Check that we're actually connected before trying anything
         if (chatService.getState() != BluetoothChatService.STATE_CONNECTED) {
-            Toast.makeText(context, getResources().getString(R.string.bt_connected_no), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, getResources().getString(R.string.bt_connected_no), Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Check that there's actually something to send
         if (byteArray.length > 0) {
-            // Get the message bytes and tell the BluetoothChatService to write
-            //byte[] send = message.getBytes();
+        	//byte byteEntete = byteArray[0];
+        	
+        	//String str1 = new String(byteEntete,"UTF-8");
+        	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "Send Message size = " + byteArray.length);};
             chatService.write(byteArray);
 
             // Reset out string buffer to zero and clear the edit text field
@@ -278,97 +328,45 @@ public class Home extends BaseActivity {
             //etMsg.setText(strBufferOut);
         }
     }
-    */
     
-    private byte[] getScreenshot(){
+    
+    private byte[] readFile(){
     	byte[] byteArray = null;
-    	// image naming and path  to include sd card  appending name you choose for file
-    	String mPath = Environment.getExternalStorageDirectory().toString() + "/Download/test.jpg";  
-    	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "mPath = " + mPath);};
-
-    	// create bitmap screen capture
-    	Bitmap bitmap;
+    	try{
     	
-    	View v1 = getWindow().getDecorView().getRootView();
-    	v1.setDrawingCacheEnabled(true);
-    	bitmap = Bitmap.createBitmap(v1.getDrawingCache());
-    	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "bitmap.x = " + bitmap.getWidth());};
-    	v1.setDrawingCacheEnabled(false);
-
-    	
-    	OutputStream fout = null;
-    	File imageFile = new File(mPath);
-
-    	try {
-    	    fout = new FileOutputStream(imageFile);
-    	    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fout);
-    	    fout.flush();
-    	    fout.close();
+    		String path = Environment.getExternalStorageDirectory().toString() + "/Download/logo_infra_1024.jpg";  
+    		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "path = " + path);};
+    		File file = new File(path);
+    		if (!file.exists()){
+    			if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.e(Params.TAG_GEN, TAG_LOCAL + "PAS DE FICHIER = " + path);};
+    		}
+    		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.e(Params.TAG_GEN, TAG_LOCAL + "Fichier ok = " + path);};
+    		ByteArrayOutputStream ous = null;
+    	    InputStream ios = null;
+    		byte[] buffer = new byte[4096];
+            ous = new ByteArrayOutputStream();
+            ios = new FileInputStream(file);
+            int read = 0;
+            byte[] byteEntete = "D".getBytes();
+            ous.write(byteEntete, 0,byteEntete.length);
+            if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "byteEntete.length = " + byteEntete.length);};
+            while ( (read = ios.read(buffer)) != -1 ) {
+                ous.write(buffer, 0, read);
+            }
+            byteArray = ous.toByteArray();
+            if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "ous.size() = " + ous.size());};
     	    
-    	    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-    	    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream);
-    	    byteArray = stream.toByteArray();
-    	    if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "byteArray size  " + byteArray.length);};
-
     	} catch (FileNotFoundException e) {
     		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "getScreenshot FileNotFoundException :  " + e.getMessage());};
     	} catch (IOException e) {
     		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "getScreenshot IOException :  " + e.getMessage());};
     	}
+    	
     	return byteArray;
     }
   
     
-    /*
-    private TextView.OnEditorActionListener mWriteListener = new TextView.OnEditorActionListener() {
-        public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-            // If the action is a key-up event on the return key, send the message
-            if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
-                String message = view.getText().toString();
-                sendMessage(message);
-            }
-            if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "END onEditorAction");};
-            return true;
-        }
-    };
-    */
 
-    /*
-    public class IncomingSms extends BroadcastReceiver {
-    	private String TAG_LOCAL = "IncomingSms - ";
-    	private boolean fgDebugLocal = true;
-        
-       // Get the object of SmsManager
-    	final SmsManager sms = SmsManager.getDefault();
-        
-    	public void onReceive(Context context, Intent intent) {
-    		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "IncomingSms");};
-    		final Bundle bundle = intent.getExtras();
-    		try {
-    			if (bundle != null) {
-    				final Object[] pdusObj = (Object[]) bundle.get("pdus");
-                    
-    				for (int i = 0; i < pdusObj.length; i++) {
-                       SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
-                       String phoneNumber = currentMessage.getDisplayOriginatingAddress();
-                        
-                       String senderNum = phoneNumber;
-                       String message = currentMessage.getDisplayMessageBody();
-                       
-                       if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "senderNum: "+ senderNum + "; message: " + message);};
-                      
-                       //int duration = Toast.LENGTH_LONG;
-                       //Toast toast = Toast.makeText(context, "senderNum: "+ senderNum + ", message: " + message, duration);
-                       //toast.show();
-                        
-                   } // end for loop
-                 } // bundle is null
 
-           } catch (Exception e) {
-        	   if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "IncomingSms error : " + e.getMessage());};
-                
-           }
-       }    
-    }
-    */
+   
 }

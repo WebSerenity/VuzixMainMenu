@@ -1,5 +1,7 @@
 package com.vuzix.main.menu;
 
+import com.vuzix.tools.Params;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -46,8 +48,19 @@ public class DrawViewConnexionBluetooth extends SurfaceView{
 		
 		textPaintMsg.setColor(Color.RED);
         textPaintMsg.setTextSize(25);
+        /*
+        float[] taillelettres = new float[strMsg.length()];
+        textPaintMsg.getTextWidths(strMsg, 0, strMsg.length(), taillelettres);
+        int tailleTexte = 0;
+        for (int Cpt = 0; Cpt < taillelettres.length; Cpt++){
+        	tailleTexte = (int) (tailleTexte + taillelettres[Cpt]);
+        }
+        */
+        if (strMsg.length() > Params.NBR_LETTRE){
+        	strMsg = strMsg.substring(0, Params.NBR_LETTRE) + "...";
+        }
         
-        canvas.drawText(strMsg, (int)(screenWidth*0.2), (int)(screenHeight*0.3), textPaintMsg);
+        canvas.drawText(strMsg, (int)(screenWidth*0.1), (int)(screenHeight*0.3), textPaintMsg);
 		
 	}
 

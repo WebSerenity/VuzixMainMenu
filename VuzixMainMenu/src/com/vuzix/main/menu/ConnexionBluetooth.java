@@ -252,6 +252,10 @@ public class ConnexionBluetooth extends BaseActivity{
                 if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "MESSAGE_READ - byteEntete: " + refSend);};
                 if (refSend.equalsIgnoreCase(Params.REP_DATA)){
                 	readMessage = "Data received";
+                }else if (refSend.equalsIgnoreCase(Params.REP_JPG)){
+                	readMessage = "JPG received";
+                }else if (refSend.equalsIgnoreCase(Params.REP_PNG)){
+                	readMessage = "PNG received";
                 }else{
 	                readMessage = new String(readBuf, 0, msg.arg1);
 	                if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "MESSAGE_READ: " + readMessage);};

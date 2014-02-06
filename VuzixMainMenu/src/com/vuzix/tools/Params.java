@@ -28,6 +28,8 @@ public interface Params {
 	public static final String REP_SMS = "S";
 	public static final String REP_MESSAGE = "M";
 	public static final String REP_DATA = "D";
+	public static final String REP_JPG = "J";
+	public static final String REP_PNG = "P";
 	public static final int NBR_LETTRE = 25;
 	
 	

@@ -41,7 +41,7 @@ import android.util.Log;
  * thread for performing data transmissions when connected.
  */
 public class BluetoothChatService {
-	private String TAG_LOCAL = "BaseActivity - ";
+	private String TAG_LOCAL = "BluetoothChatService - ";
 	private boolean fgDebugLocal = true;
 
     // Name for the SDP record when creating server socket
@@ -464,25 +464,81 @@ public class BluetoothChatService {
 
         public void run() {
         	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "BEGIN mConnectedThread");};
-        	byte[] buffer = new byte[1024];
-            int bytes;
+        	
 
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
+                	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "BEGIN mConnectedThread 2");};
                     // Read from the InputStream
-                    bytes = mmInStream.read(buffer);
-                    /*
-                    int len = 0;
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    buffer = new byte[1024];
-                    while ((len = mmInStream.read(buffer, 0, 1024)) != -1)
-                      bos.write(buffer, 0, len);
-                    buffer = bos.toByteArray();
-                    if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "bos size = " + bos.size());};
-                    */
-                    // Send the obtained bytes to the UI Activity
-                    handler.obtainMessage(BaseActivity.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                	byte[] buffer = new byte[4096];
+                    //int sizeBuffer = 0;
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    int sizeBuffer = mmInStream.read(buffer);
+                    String typeBuffer = Character.toString ((char) buffer[0]);
+                    if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "sizeBuffer = " + sizeBuffer);};
+                    if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "buffer type = " + typeBuffer);};
+                    if (!typeBuffer.equalsIgnoreCase(Params.REP_DATA) && !typeBuffer.equalsIgnoreCase(Params.REP_JPG) && !typeBuffer.equalsIgnoreCase(Params.REP_PNG)){
+	                    for (int Cpt = 0; Cpt < sizeBuffer; Cpt++){
+	                    	byteArrayOutputStream.write(buffer[Cpt]);
+	                    }
+	                    byteArrayOutputStream.flush();
+	                    handler.obtainMessage(BaseActivity.MESSAGE_READ, byteArrayOutputStream.size(), -1, byteArrayOutputStream.toByteArray()).sendToTarget();
+	            		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "BEGIN mConnectedThread 3");};
+                    
+                    }
+                    if (typeBuffer.equalsIgnoreCase(Params.REP_DATA) || typeBuffer.equalsIgnoreCase(Params.REP_JPG) || typeBuffer.equalsIgnoreCase(Params.REP_PNG)){
+                    	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "Type  = " + typeBuffer);};
+	                    //bug : le flux ne retourne pas -1 quand il est fini
+                    	//int nbr = 0;
+                    	int dataLu = 0;
+                    	byte[] bufferEntete = new byte[4096];
+                    	
+                    	String strSizeFile = "";
+                    	for (int Cpt = 1; Cpt < sizeBuffer; Cpt++){
+                    		String strButee = Character.toString ((char) buffer[Cpt]);
+                    		strSizeFile = strSizeFile + strButee;
+                    		//if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "strButee = " + strButee);};
+                        	if (strButee.equalsIgnoreCase(Params.REP_DATA) || strButee.equalsIgnoreCase(Params.REP_JPG) || strButee.equalsIgnoreCase(Params.REP_PNG)){
+                        		//if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "strButee Fin= " + strButee);};
+                        		break;
+                        	}else{
+                        		bufferEntete[Cpt -1] = buffer[Cpt];
+                        		dataLu++;
+                        	}
+                        }
+                    	dataLu++;
+                    	strSizeFile = strSizeFile.substring(0, strSizeFile.length() - 1);
+                    	int sizeFile = Integer.parseInt(strSizeFile);
+                    	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "sizeFile = " + sizeFile);};
+	                    
+                    	
+                    	
+	                    //on lit les info du fichier
+                    	for (int Cpt = strSizeFile.length() + 1; Cpt < sizeBuffer; Cpt++){
+                        	byteArrayOutputStream.write(buffer[Cpt]);
+                        	dataLu++;
+                        }
+                    	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "dataLu = " + dataLu);};
+	                    while(dataLu < sizeFile){
+	                    	sizeBuffer = mmInStream.read(buffer);
+	                    	for (int Cpt = 0; Cpt < sizeBuffer; Cpt++){
+	                        	byteArrayOutputStream.write(buffer[Cpt]);
+	                        	dataLu++;
+	                        }
+	                    	
+	                    	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "sizeBuffer = " + sizeBuffer);};
+	                    	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "dataLu = " + dataLu);};
+	                    }
+	                    if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "dataLu = " + dataLu);};
+	
+	                    byteArrayOutputStream.flush();
+	            		handler.obtainMessage(BaseActivity.MESSAGE_READ, byteArrayOutputStream.size(), -1, byteArrayOutputStream.toByteArray()).sendToTarget();
+	            		if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "BEGIN mConnectedThread 3");};
+                    }
+                    
+                    
+                    
                 } catch (IOException e) {
                 	if (Params.TAG_FG_DEBUG && fgDebugLocal){Log.i(Params.TAG_GEN, TAG_LOCAL + "Disconnected = " + e.getMessage());};
                     connectionLost();
